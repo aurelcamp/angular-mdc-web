@@ -15,7 +15,7 @@ import {
 
 @Component({
   selector: 'mdc-snackbar-container',
-  template: `<ng-template cdkPortalHost></ng-template>`,
+  template: `<ng-template cdkPortalOutlet></ng-template>`,
 })
 export class MdcSnackbarContainer extends BasePortalOutlet {
   @ViewChild(CdkPortalOutlet) _portalOutlet: CdkPortalOutlet;

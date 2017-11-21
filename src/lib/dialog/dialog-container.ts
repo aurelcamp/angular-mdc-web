@@ -21,7 +21,7 @@ import {
 
 @Component({
   selector: 'mdc-dialog-container',
-  template: `<ng-template cdkPortalHost></ng-template>`,
+  template: `<ng-template cdkPortalOutlet></ng-template>`,
   encapsulation: ViewEncapsulation.None,
   preserveWhitespaces: false,
 })
