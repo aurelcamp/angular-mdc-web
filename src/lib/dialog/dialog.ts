@@ -59,7 +59,7 @@ export class MdcDialog {
     // location hash changes. Note that this usually doesn't include clicking on links (unless
     // the user is using the `HashLocationStrategy`).
     if (!_parentDialog && location) {
-      location.subscribe(() => this.closeAll());
+      location.subscribe(() => this.close());
     }
   }
 
@@ -95,7 +95,7 @@ export class MdcDialog {
   /**
      * Closes all of the currently-open dialogs.
      */
-  closeAll(): void {
+  close(): void {
     let i = this.openDialogs.length;
 
     while (i--) {
@@ -105,13 +105,6 @@ export class MdcDialog {
       // they'll be removed from the list instantaneously.
       this.openDialogs[i].close();
     }
-  }
-
-  /**
-   * Close the currently-visible dialog.
-   */
-  close(): void {
-    this.closeAll();
   }
 
   /**
