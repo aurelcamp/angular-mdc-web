@@ -43,10 +43,6 @@
           <td>tabIndex: number</td>
           <td>Set the underlying tab index of the select. (Default is 0)</td>
         </tr>
-        <tr>
-          <td>closeOnScroll: boolean</td>
-          <td>Closes the menu on window scroll. (Default is true)</td>
-        </tr>
       </tbody>
       <thead>
         <tr>
@@ -185,7 +181,7 @@
   <span mdc-typography-headline>Select with ngModel</span>
   <div [mdc-theme-dark]="isDarkTheme" class="mdc-padding demo-select-container">
 <mdc-select #select placeholder="Favorite food" [(ngModel)]="selectedValue" name="food"
- [disabled]="isDisabled" [closeOnScroll]="closeOnScroll" (change)="handleChange($event)">
+ [disabled]="isDisabled" (change)="handleChange($event)">
   <mdc-select-item *ngFor="let food of foods" [value]="food.value" [disabled]="food.disabled">
     {{food.description}}
   </mdc-select-item>
@@ -199,10 +195,6 @@
   <mdc-form-field>
     <mdc-checkbox [(ngModel)]="isDarkTheme"></mdc-checkbox>
     <label>Dark Theme</label>
-  </mdc-form-field>
-  <mdc-form-field>
-    <mdc-checkbox [(ngModel)]="closeOnScroll"></mdc-checkbox>
-    <label>Close on Window Scroll</label>
   </mdc-form-field>
   <pre mdc-typography-body1>Selected value: {{selectedValue}}
 Change event: index: {{eventIndex}}, value: {{eventValue}}</pre>

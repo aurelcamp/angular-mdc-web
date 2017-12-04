@@ -8,7 +8,6 @@ import { FormControl, Validators } from '@angular/forms';
 export class SelectDemo implements AfterViewInit, OnInit {
   isDisabled: boolean = false;
   selectedValue: string;
-  closeOnScroll: boolean = true;
   isDarkTheme: boolean = false;
   eventIndex: number;
   eventValue: any;

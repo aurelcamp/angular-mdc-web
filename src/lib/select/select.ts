@@ -245,7 +245,7 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
       return this.selectMenu.elementRef.nativeElement.offsetHeight;
     },
     openMenu: (focusIndex: number) => {
-      this.open();
+      this.open(focusIndex);
     },
     isMenuOpen: () => this._menuFactory.open,
     setSelectedTextContent: (textContent: string) => {
@@ -255,19 +255,28 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
       return this.options ? this.options.length : 0;
     },
     getTextForOptionAtIndex: (index: number) => {
-      return this._getItemByIndex(index).elementRef.nativeElement.textContent;
+      const item = this._getItemByIndex(index);
+      return item ? item.elementRef.nativeElement.textContent : null;
     },
     getValueForOptionAtIndex: (index: number) => {
-      return this._getItemByIndex(index).value || this._getItemByIndex(index).elementRef.nativeElement.textContent;
+      const item = this._getItemByIndex(index);
+      return item ? item.value || item.elementRef.nativeElement.textContent : null;
     },
     setAttrForOptionAtIndex: (index: number, attr: string, value: string) => {
-      this._renderer.setAttribute(this._getItemByIndex(index).elementRef.nativeElement, attr, value);
+      const item = this._getItemByIndex(index);
+      if (item) {
+        this._renderer.setAttribute(item.elementRef.nativeElement, attr, value);
+      }
     },
     rmAttrForOptionAtIndex: (index: number, attr: string) => {
-      this._renderer.removeAttribute(this._getItemByIndex(index).elementRef.nativeElement, attr);
+      const item = this._getItemByIndex(index);
+      if (item) {
+        this._renderer.removeAttribute(item.elementRef.nativeElement, attr);
+      }
     },
     getOffsetTopForOptionAtIndex: (index: number) => {
-      return this._getItemByIndex(index).elementRef.nativeElement.offsetTop;
+      const item = this._getItemByIndex(index);
+      return item ? item.elementRef.nativeElement.offsetTop : 0;
     },
     registerMenuInteractionHandler: (type: string, handler: EventListener) => {
       this._registry.listen(type, handler, this.selectMenu.elementRef.nativeElement);
@@ -301,7 +310,6 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
 
   @Input() id: string = this._uniqueId;
   @Input() name: string | null = null;
-  @Input() closeOnScroll: boolean = true;
   @Output() change = new EventEmitter<MdcSelectedData>();
 
   /** Event emitted when the select has been opened. */
@@ -524,10 +532,6 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
       return;
     }
 
-    if (this.closeOnScroll && isBrowser()) {
-      this._renderer.setStyle(document.body, 'overflow', 'hidden');
-    }
-
     this._changeDetectorRef.markForCheck();
     this.openedChange.emit(true);
     this._menuFactory.show({ index });
@@ -535,10 +539,6 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
 
   close(): void {
     if (this.isOpen()) {
-      if (this.closeOnScroll && isBrowser()) {
-        this._renderer.removeStyle(document.body, 'overflow');
-      }
-
       this._menuFactory.hide();
       this._renderer.removeClass(this.elementRef.nativeElement, 'mdc-select--open');
       this._changeDetectorRef.markForCheck();
