@@ -293,6 +293,14 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
       // TODO fix: console.log(this._foundation.getValue())
     },
     getWindowInnerHeight: () => isBrowser() ? window.innerHeight : 0,
+    addBodyClass: (className: string) => {
+      if (isBrowser()) {
+        this._renderer.addClass(document.body, className);
+      }
+    },
+    removeBodyClass: (className: string) => {
+      this._renderer.removeClass(document.body, className);
+    }
   };
 
   private _foundation: {
@@ -311,28 +319,6 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
   @Input() id: string = this._uniqueId;
   @Input() name: string | null = null;
   @Output() change = new EventEmitter<MdcSelectedData>();
-
-  /** Event emitted when the select has been opened. */
-  @Output() openedChange: EventEmitter<boolean> = new EventEmitter<boolean>();
-
-  /** Event emitted when the select has been opened. */
-  @Output('opened')
-  get _openedStream(): Observable<void> {
-    return this.openedChange.pipe(filter(o => o), map(() => { }));
-  }
-
-  /** Event emitted when the select has been closed. */
-  @Output('closed')
-  get _closedStream(): Observable<void> {
-    return this.openedChange.pipe(filter(o => !o), map(() => { }));
-  }
-
-  /**
-    * Event that emits whenever the raw value of the select changes. This is here primarily
-    * to facilitate the two-way binding for the `value` input.
-    * @docs-private
-    */
-  @Output() valueChange = new EventEmitter<any>();
 
   @HostBinding('class.mdc-select') isHostClass = true;
   @HostBinding('attr.role') role: string = 'listbox';
@@ -462,19 +448,6 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
     });
   }
 
-  /** The currently selected option. */
-  get selected(): MdcSelectItem {
-    return this.options.find(_ => _.selected);
-  }
-
-  setPlaceholder(text: string): void {
-    this._placeholder = text;
-  }
-
-  getSelectedIndex(): number {
-    return this._foundation.getSelectedIndex();
-  }
-
   clearSelection(): void {
     if (this.disabled || !this.options || !this.options.length) {
       return;
@@ -527,13 +500,25 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
     this._changeDetectorRef.markForCheck();
   }
 
+  /** The currently selected option. */
+  get selected(): MdcSelectItem {
+    return this.options.find(_ => _.selected);
+  }
+
+  setPlaceholder(text: string): void {
+    this._placeholder = text;
+  }
+
+  getSelectedIndex(): number {
+    return this._foundation.getSelectedIndex();
+  }
+
   open(index: number = 0): void {
     if (this.disabled) {
       return;
     }
 
     this._changeDetectorRef.markForCheck();
-    this.openedChange.emit(true);
     this._menuFactory.show({ index });
   }
 
@@ -542,7 +527,6 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
       this._menuFactory.hide();
       this._renderer.removeClass(this.elementRef.nativeElement, 'mdc-select--open');
       this._changeDetectorRef.markForCheck();
-      this.openedChange.emit(false);
       this.focus();
     }
   }
