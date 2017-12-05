@@ -33,6 +33,8 @@ import { Observable } from 'rxjs/Observable';
 import { filter } from 'rxjs/operators/filter';
 import { take } from 'rxjs/operators/take';
 import { map } from 'rxjs/operators/map';
+import { Subscription } from 'rxjs/Subscription';
+import { merge } from 'rxjs/observable/merge';
 
 import { toBoolean, isBrowser, EventRegistry } from '@angular-mdc/web/common';
 import { MDCSimpleMenu } from '@material/menu/simple';
@@ -289,8 +291,6 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
         index: this._foundation.getSelectedIndex(),
         value: this._foundation.getValue(),
       });
-      this._propagateChanges();
-      // TODO fix: console.log(this._foundation.getValue())
     },
     getWindowInnerHeight: () => isBrowser() ? window.innerHeight : 0,
     addBodyClass: (className: string) => {
@@ -411,6 +411,19 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
       this._foundation.resize();
       this._initializeSelection();
     });
+
+    this._itemsSubscription = merge(
+      ...this.options.map(item => item.onSelectionChange)).subscribe((_: MdcSelectedItem) => {
+        const index = this.options.toArray().indexOf(_.source);
+
+        this._foundation.setSelectedIndex(index);
+        this._value = _.source.value;
+
+        this._onChange(this._value);
+        this._mdcAdapter.notifyChange();
+        this._changeDetectorRef.markForCheck();
+        console.log('items subscription: ' + index)
+      });
   }
 
   ngOnDestroy(): void {
@@ -421,11 +434,14 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
   }
 
   writeValue(value: any): void {
-    if (this.disabled || !this.options || !this.options.length) {
+    if (this.disabled || !this.options) {
       return;
     }
 
-    this._setSelectionByValue(value);
+    if (value) {
+      this._setSelectionByValue(value);
+    }
+    this._mdcAdapter.notifyChange();
   }
 
   registerOnChange(fn: (value: any) => void): void {
@@ -448,24 +464,26 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
     });
   }
 
-  clearSelection(): void {
-    if (this.disabled || !this.options || !this.options.length) {
+  clearSelection(skip?: MdcSelectItem): void {
+    if (this.disabled || !this.options) {
       return;
     }
 
-    this.options.forEach((_) => _.deselect());
-    this._foundation.setSelectedIndex(-1);
-    this._mdcAdapter.notifyChange();
+    this.options.forEach(option => {
+      if (option !== skip) {
+        option.deselect();
+      }
+    });
   }
 
   private _setSelectionByValue(value: any, isUserInput = false): void {
-    if (this.disabled) {
-      return;
-    }
-
     this.clearSelection();
 
     const correspondingOption = this._selectValue(value, isUserInput);
+
+    if (!correspondingOption) {
+      this._foundation.setSelectedIndex(-1);
+    }
     this._changeDetectorRef.markForCheck();
   }
 
@@ -481,7 +499,6 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
 
     if (correspondingOption) {
       isUserInput ? correspondingOption._selectViaInteraction() : correspondingOption.select();
-      this._mdcAdapter.notifyChange();
     }
 
     return correspondingOption;
@@ -490,13 +507,9 @@ export class MdcSelect implements AfterViewInit, AfterContentInit, ControlValueA
   /** Emits change event to set the model value. */
   private _propagateChanges(fallbackValue?: any): void {
     let valueToEmit: any = null;
-
     valueToEmit = this.selected ? (this.selected as MdcSelectItem).value : fallbackValue;
 
     this._value = valueToEmit;
-    // this._foundation.setSelectedIndex(this.options.toArray().findIndex((_) => _.value === valueToEmit));
-    this._onChange(valueToEmit);
-    this.valueChange.emit(valueToEmit);
     this._changeDetectorRef.markForCheck();
   }
 

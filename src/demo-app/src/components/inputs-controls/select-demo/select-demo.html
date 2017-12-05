@@ -178,7 +178,7 @@
   </div>
 </div>
 <div fxLayout="column" class="mdc-padding" fxLayoutAlign="start start">
-  <span mdc-typography-headline>Select with ngModel</span>
+  <span mdc-typography-title>Select with ngModel</span>
   <div [mdc-theme-dark]="isDarkTheme" class="mdc-padding demo-select-container">
 <mdc-select #select placeholder="Favorite food" [(ngModel)]="selectedValue" name="food"
  [disabled]="isDisabled" (change)="handleChange($event)">
@@ -209,12 +209,12 @@ Change event: index: {{eventIndex}}, value: {{eventValue}}</pre>
 <span style="color:#89bdff">&lt;/<span style="color:#89bdff">mdc</span><span style="color:#89bdff">-select</span>></span>
 </pre>
 
-<span mdc-typography-headline>Select with FormControl</span>
+<span mdc-typography-title>Select with FormControl</span>
 
 <div class="mdc-padding demo-select-container">
-<mdc-select placeholder="Favorite animal" [formControl]="animalControl">
-  <mdc-select-item *ngFor="let animal of animals" [value]="animal">
-    {{animal.name}}
+<mdc-select placeholder="Favorite food" [formControl]="foodControl">
+  <mdc-select-item *ngFor="let food of foods" [value]="food.value">
+    {{food.description}}
   </mdc-select-item>
 </mdc-select>
 </div>
